@@ -1,7 +1,4 @@
 var CLIENT = (function () {
-    console.log("creating client");
-    
-    
     var socket;
     
     function open() {
