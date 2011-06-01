@@ -167,8 +167,21 @@ var ParserFactory = (function() {
             this.header = "";
             this.value = "";
             this.headers = {};
+            this.body = undefined;
         },
 
+        addBufferToBody: function(buffer) {
+            if (this.body === undefined) {
+                this.body = new Buffer(buffer.length);
+                buffer.copy(this.body);
+            } else {
+                var newbody = new Buffer(this.body.length + buffer.length) ;
+                this.body.copy(newbody);
+                buffer.copy(newbody,this.body.length);
+                this.body = newbody;
+            }
+        },
+        
         processChar: function(c) {
 //            console.log("process char " + JSON.stringify(c));
             statefn = machine[this.state];
@@ -191,12 +204,28 @@ var ParserFactory = (function() {
         },
         
         process: function(buffer) {
+            if (this.state === "FINISH") {
+                // already finished parsing header.  add the entire buffer to the body
+                this.addBufferToBody(buffer);
+                return;
+            }
+            
             for (var i = 0; i < buffer.length; ++i) {
                 var c = buffer[i];
                 if (!this.processChar(String.fromCharCode(c))) {
                     break;
                 }
+                if (this.state === "FINISH") {
+                    console.log("Reached FINISH state");
+                    // add remaining bytes to the body
+                    this.addBufferToBody(buffer.slice(i));
+                    break;
+                }
             }
+        },
+        
+        isComplete: function() {
+            return this.state === "FINISH";
         }
     };
 

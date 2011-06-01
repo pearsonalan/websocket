@@ -11,8 +11,8 @@ var CLIENT = (function () {
                 socket.send("hello");
             }, 1000);
         };
-        socket.onmessage = function () {
-            console.log("received socket message");
+        socket.onmessage = function (m) {
+            console.log("received socket message: " + JSON.stringify(m,null,2));
         };
         socket.onclose = function () {
             console.log("Socket closed");
