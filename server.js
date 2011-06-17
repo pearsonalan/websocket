@@ -132,6 +132,14 @@ var server = net.createServer(function (client) {
             b[0] = 0x00;
             b[b.length - 1] = 0xff;
             client.write(b);
+            
+            setInterval(function () {
+                var b = new Buffer(" Yo, dude! ");
+                b[0] = 0x00;
+                b[b.length - 1] = 0xff;
+                client.write(b);
+            }, 5000);
+                
         }
     });
     
